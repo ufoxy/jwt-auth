@@ -2,7 +2,6 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const express = require("express");
 const User = require("./models/User");
-const { collection } = require("./models/User");
 
 const app = express();
 app.use(express.json());
