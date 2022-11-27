@@ -23,6 +23,12 @@ app.post("/auth/login", async (req, res) => {
     return res.status(404).json({ msg: "Password is required." });
   }
 
+  const userExist = await User.findOne({ user: user });
+
+  if (!userExist) {
+    return res.status(404).json({ message: "Non-existent user." });
+  }
+
   const dbUser = await User.findOne({ user: user });
 
   const checkPassword = password === dbUser.password
