@@ -4,7 +4,7 @@ const {
   hashPassword,
   verifyPasswordWithHash,
 } = require("../services/password.service");
-const { createToken, verifyToken } = require("../services/jwt.service");
+const { createToken, createRefreshToken } = require("../services/jwt.service");
 const User = require("../models/user.model");
 
 async function login(req, res) {
@@ -35,10 +35,17 @@ async function login(req, res) {
   }
 
   try {
+    const refreshToken = await createRefreshToken({
+      user: dbUser.user,
+    });
     const token = await createToken({
       user: dbUser.user,
     });
-    res.status(200).json({ msg: "Autenticação realizada com sucesso!", token });
+    res.status(200).json({
+      msg: "Autenticação realizada com sucesso!",
+      token,
+      refreshToken,
+    });
   } catch (error) {
     res.status(500).json({ msg: error });
   }
@@ -78,7 +85,16 @@ async function register(req, res) {
   }
 }
 
+async function refresh(req, res) {
+  const user = await req.body.user;
+  const token = await createToken({
+    user: user,
+  });
+  res.status(201).json({ token: token })
+}
+
 module.exports = {
   login,
+  refresh,
   register,
 };
