@@ -4,14 +4,21 @@ const jwt_decode = require("jwt-decode");
 
 async function createToken(params) {
   const secret = process.env.SECRET;
-  const token = jwt.sign(params, secret);
+  const token = jwt.sign(params, secret, { expiresIn: '20s' });
   return token;
+}
+
+async function createRefreshToken(params) {
+  const secret = process.env.REFRESH_SECRET;
+  const refreshToken = jwt.sign(params, secret, { expiresIn: '180s' });
+  return refreshToken;
 }
 
 async function verifyPermission(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   const decode = jwt_decode(token);
+  console.log(decode)
 
   const user = await req.params.user;
 
@@ -40,8 +47,25 @@ async function verifyToken(req, res, next) {
   }
 }
 
+async function verifyRefreshToken(req, res, next) {
+  const refreshToken = await req.body.refreshToken;
+  console.log(refreshToken)
+  if (!refreshToken) return res.status(401).json({ msg: "Refresh Token invalido!" });
+
+  try {
+    const secret = process.env.REFRESH_SECRET;
+    jwt.verify(refreshToken, secret);
+
+    next();
+  } catch (err) {
+    res.status(400).json({ msg: "O Refresh Token é inválido!" });
+  }
+}
+
 module.exports = {
   createToken,
+  createRefreshToken,
   verifyPermission,
   verifyToken,
+  verifyRefreshToken,
 };
