@@ -1,13 +1,16 @@
 require("dotenv").config()
 const express = require("express");
-const auth = require("./src/routes/auth.route")
+const authRoute = require("./src/routes/auth.route")
+const appRoute = require("./src/routes/app.route")
 const port = process.env.PORT || 3000
+require("./src/services/password.service")
 
 const app = express();
 
 app.use(express.json());
 
-app.use("/auth", auth);
+app.use("/auth", authRoute);
+app.use("/books", appRoute)
 
 app.get("/", (req, res) => {
   res.status(200).json({ msg: "Welcome to API!" });
